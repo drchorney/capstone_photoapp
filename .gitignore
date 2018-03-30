@@ -21,5 +21,7 @@
 /yarn-error.log
 
 /client/build
+/bower_components
+/node_modules
 
 .byebug_history
