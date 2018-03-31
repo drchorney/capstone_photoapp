@@ -37,14 +37,14 @@ var cfg= {
   html : 	{ src: [srcPath + "/**/*.html", "!"+srcPath + "/*.html"]},
 
   //vendor css src globs
-  boostrap_sass:	{ src: bowerPath + "/boostrap-sass/assets/stylesheets/" },
+  bootstrap_sass:	{ src: bowerPath + "/bootstrap-sass/assets/stylesheets/" },
   
   //vendor fonts src globs
   bootstrap_fonts: { src: bowerPath + "/bootstrap-sass/assets/fonts/**/*" },
   
   //vendor js src globs
   jquery: 	{ src: bowerPath + "/jquery2/jquery.js" },
-  boostrap_js:	{ src: bowerPath + "/bootstrap-sass/assets/javascripts/bootstrap.js" },
+  bootstrap_js:	{ src: bowerPath + "/bootstrap-sass/assets/javascripts/bootstrap.js" },
   angular:	{ src: bowerPath + "/angular/angular.js" },
   angular_ui_router: { src: bowerPath + "/angular-ui-router/release/angular-ui-router.js" },
   angular_resource:  { src: bowerPath + "/angular-resource/angular-resource.js" },
@@ -57,17 +57,69 @@ var cfg= {
   apiUrl: { dev: "http://localhost:3000",
  	    prd: "https://ongoing-capstone-staging.herokuapp.com/"},
 
-  //files within these paths will be served as root-level resources in this priority order
-  var devResourcePath = [
-    cfg.vendor_js.bld,
-    cfg.vendor_css.bld,
-    buildPath+"/javascripts",
-    buildPath+"/stylesheets",
-    srcPath,
-    srcPath+"/javascripts",
-    srcPath+"/stylesheets",
-    ];
 };
+
+//files within these paths will be served as root-level resources in this priority order
+var devResourcePath = [
+  cfg.vendor_js.bld,
+  cfg.vendor_css.bld,
+  buildPath+"/javascripts",
+  buildPath+"/stylesheets",
+  srcPath,
+  srcPath+"/javascripts",
+  srcPath+"/stylesheets",
+  ];
+
+//remove all files below the build area
+gulp.task("clean:build", function() {
+  console.log("buildPath=" + buildPath);
+  return del(buildPath);
+});
+
+//remove all files below the dist area
+gulp.task("clean:dist", function() {
+  return del(distPath);
+});
+
+//remove all files below both the build and dist area
+gulp.task("clean", ["clean:build", "clean:dist"]);
+
+// not used right now, in here for completeness
+gulp.task("vendor_css", function() {
+ return gulp.src([
+      //cfg.bootstrap_css.src,
+    ])
+    .pipe(gulp.dest(cfg.vendor_css.bld));
+});
+
+gulp.task("vendor_js", function(){
+  return gulp.src([
+          cfg.jquery.src,
+          cfg.bootstrap_js.src,
+	  cfg.angular.src,
+	  cfg.angular_ui_router.src,
+	  cfg.angular_resource.src,
+	  ])
+	  .pipe(gulp.dest(cfg.vendor_js.bld));
+});
+
+gulp.task('vendor_fonts', function() {
+  return gulp.src([
+    cfg.bootstrap_fonts.src,
+  ])
+  .pipe(gulp.dest(cfg.vendor_fonts.bld));
+});
+
+gulp.task('css', function() {
+  return gulp.src(cfg.css.src).pipe(debug())
+    .pipe(sourcemaps.init())
+    .pipe(sass({ includePaths: [cfg.bootstrap_sass.src] }))
+    .pipe(sourcemaps.write("./maps"))
+    .pipe(gulp.dest(cfg.css.bld)).pipe(debug());
+});
+
+//prepare the development area - clean build happens first, the others run in parallel
+gulp.task("build", sync.sync(["clean:build", ["vendor_css", "vendor_js", "vendor_fonts", "css"]]));
 
 //gulp.task("hello", function() {
 //  console.log("hello");
