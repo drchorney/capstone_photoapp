@@ -52,7 +52,7 @@ var cfg= {
   //vendor build locations
   vendor_js :  { bld: vendorBuildPath + "/javascripts" },
   vendor_css : { bld: vendorBuildPath + "/stylesheets" },
-  vendor_fonts : { bld: vendorBuildPath + "/sytlesheets/fonts" },
+  vendor_fonts : { bld: vendorBuildPath + "/stylesheets/fonts" },
   
   apiUrl: { dev: "http://localhost:3000",
  	    prd: "https://ongoing-capstone-staging.herokuapp.com/"},
@@ -120,6 +120,61 @@ gulp.task('css', function() {
 
 //prepare the development area - clean build happens first, the others run in parallel
 gulp.task("build", sync.sync(["clean:build", ["vendor_css", "vendor_js", "vendor_fonts", "css"]]));
+
+
+//helper method to launch server and to watch for changes
+function browserSyncInit(baseDir, watchFiles) {
+  browserSync.instance = browserSync.init(watchFiles, {
+    server: { baseDir: baseDir },
+    port:   8080,
+    ui:     { port: 8090 }
+  });
+};
+
+//run the browser against the development/build area and watch files being edited
+gulp.task("browserSync", ["build"], function() {
+  browserSyncInit(devResourcePath, [
+    cfg.root_html.src,
+    cfg.css.bld + "/**/*.css",
+    cfg.js.src,
+    cfg.html.src,
+   ]);
+});
+
+//prepare the development environment, launch server, and watch for changes
+gulp.task("run", ["build", "browserSync"], function () {
+  //extensions to watch() within event if we need to pre-process source code
+  gulp.watch(cfg.css.src, ["css"]);
+});
+
+//build assets referenced from root-level HTML file and create refs in HTML file
+gulp.task("dist:assets", ["build"], function(){
+  return gulp.src(cfg.root_html.src).pipe(debug())
+    .pipe(useref({ searchPath: devResourcePath }))
+    .pipe(gulpif(["**/*constant.js"], replace(cfg.apiUrl.dev,cfg.apiUrl.prd))) // change URLs
+    .pipe(gulpif(["**/*.js"], uglify())) //minify JS
+    .pipe(gulpif(["**/*.css"], cssMin())) //minify CSS
+    .pipe(gulp.dest(distPath)).pipe(debug());
+});
+
+gulp.task("dist:fonts", function() {
+  return gulp.src(cfg.vendor_fonts.bld + "/**/*", {base: cfg.vendor_css.bld})
+  .pipe(gulp.dest(distPath));
+});
+
+gulp.task("dist:html", function() {
+  return gulp.src(cfg.html.src).pipe(debug())
+    .pipe(htmlMin({collapseWhitespace: true})) //minify HTML
+    .pipe(gulp.dest(distPath)).pipe(debug());
+});
+
+//build all dist artifats ready for deployment
+gulp.task("dist", sync.sync(["clean:dist","build", "dist:assets", "dist:fonts", "dist:html"]));
+
+//execute the dist webapp in a web server
+gulp.task("dist:run", ["dist"], function() {
+  browserSyncInit(distPath);
+});
 
 //gulp.task("hello", function() {
 //  console.log("hello");
