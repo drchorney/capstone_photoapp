@@ -8,3 +8,5 @@
 //= require spa-demo/app.module.js
 //= require spa-demo/app.router.js
 //= require spa-demo/app.constant.js
+
+//= require spa-demo/foos/foos.module
