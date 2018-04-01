@@ -157,15 +157,25 @@ gulp.task("dist:assets", ["build"], function(){
     .pipe(gulp.dest(distPath)).pipe(debug());
 });
 
+//build/copy over font resources into dist tree
 gulp.task("dist:fonts", function() {
   return gulp.src(cfg.vendor_fonts.bld + "/**/*", {base: cfg.vendor_css.bld})
   .pipe(gulp.dest(distPath));
 });
 
+//build/copy over font resources into dist tree
+//gulp.task("dist:html", function() {
+//  return gulp.src(cfg.html.src).pipe(debug())
+//    .pipe(htmlMin({collapseWhitespace: true})) //minify HTML
+//    .pipe(gulp.dest(distPath)).pipe(debug());
+//});
+
+//build/copy over font resources into dist tree
 gulp.task("dist:html", function() {
-  return gulp.src(cfg.html.src).pipe(debug())
+  return gulp.src(cfg.html.src, {base: srcPath+"/javascripts"}).pipe(debug())
     .pipe(htmlMin({collapseWhitespace: true})) //minify HTML
     .pipe(gulp.dest(distPath)).pipe(debug());
+
 });
 
 //build all dist artifats ready for deployment
