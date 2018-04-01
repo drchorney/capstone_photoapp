@@ -9,4 +9,4 @@
 //= require spa-demo/app.router.js
 //= require spa-demo/app.constant.js
 
-//= require spa-demo/foos/foos.module
+//= require spa-demo/states/states.module
