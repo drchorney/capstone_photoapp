@@ -11,3 +11,5 @@
 
 //= require spa-demo/states/states.module
 //= require spa-demo/states/states.service
+//= require spa-demo/states/states.controller
+//= require spa-demo/states/states.directive
