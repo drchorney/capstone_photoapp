@@ -55,7 +55,7 @@ var cfg= {
   vendor_fonts : { bld: vendorBuildPath + "/stylesheets/fonts" },
   
   apiUrl: { dev: "http://localhost:3000",
- 	    prd: "https://ongoing-capstone-staging.herokuapp.com/"},
+ 	    prd: "https://ongoing-capstone-staging.herokuapp.com"},
 
 };
 
